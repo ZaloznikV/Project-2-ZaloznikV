@@ -1,0 +1,274 @@
+---
+title: "Project-2"
+author: "Vito Založnik"
+date: "13 12 2021"
+output: pdf_document
+---
+
+## Setup
+In this block are needed libraries for work. Workdir is set to my folder on my computer. For running this notebook I used  R version 4.1.2. All work is done here, except figure 1 was done in seperate script called Plot1.R. First data preprocesing (editing some .csv lines that pandas and R could not load) is in added jupyter notebook.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# Set working dir
+setwd("C:/Users/zaloz/Desktop/exFMF/upd/project-2-databox-ZaloznikV")
+
+# Library installation.
+if (!require("ggplot2")) install.packages("ggplot2");
+if (!require("tidyverse")) install.packages("tidyverse");
+if (!require("ggcorrplot")) install.packages("ggcorrplot");
+
+# Load required libraries.
+library(ggplot2);
+library(tidyverse);
+library(ggcorrplot);
+
+```
+
+## First look at data.
+Firts lets look at data and remove some column names patterns that are anoying to write.
+```{r}
+df <- read.csv("signups/SignupsAttributes.csv")
+#summary(df)
+
+df
+
+df %>% 
+  rename_with(~str_remove(., "X.")) -> df
+df %>%
+  rename_with(~str_remove(., "properties.")) -> df
+df %>%
+  rename_with(~str_remove(., "_company")) -> df
+
+
+agency <- select(df, c("is_agency"))
+count(agency, is_agency) %>%
+  mutate_at(vars(n), ~ ./nrow(agency))
+```
+
+We can see, that most of users are not agencies.
+
+```{r}
+
+
+df %>%
+  group_by(country) %>%
+  count -> country_agency #median only 9, mean 188, a lot of difference in use by country.
+#lets look at only highest countries to see what are their properties. 
+summary(country_agency$n)
+treshold <- quantile(country_agency$n, 0.75)
+
+
+ggplot(country_agency[which(country_agency$n>treshold),],aes(x=reorder(country,-n), y=n)) + 
+  #scale_y_continuous(trans='log2') + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  geom_bar(stat="identity")
+
+
+a <- country_agency[which(country_agency$n>treshold),]
+b <- a$country
+c <- as.array(b)
+
+plt2 <- df[which(df$country %in% c),] #look only at top 75% of countries 
+
+plt2 %>% 
+  group_by(country, is_agency ) %>%
+  count -> plt2
+
+ggplot(plt2, aes(x=reorder(country, -n), y=n, colour = is_agency)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  geom_bar(stat="identity")  + 
+  xlab("Country name") + ylab("Number of companies")  +
+  ggtitle("Number of distinque customers by country and status") 
+
+ggsave(
+  "nbr_companies_country.png",
+  plot = last_plot(),
+  device = NULL,
+  path = NULL,
+  scale = 2,
+  width = NA,
+  height = NA,
+  units = c("in", "cm", "mm", "px"),
+  dpi = 300,
+  limitsize = TRUE,
+  bg = NULL
+)
+
+```
+It is interesting, there is just few countries who has majority of customers. Median is 18 customers per country but mean is 331. This mean there is a lot of outliers. 
+## Changing some data classes for easier further analysys
+```{r}
+df[df == "undefined"] <- NA
+df[df == "true"] <- TRUE
+df[df== "false"] <- FALSE
+df
+df$is_agency <- as.logical(df$is_agency)
+df$had_trial <- as.logical(df$had_trial)
+df$is_activated <- as.logical(df$is_activated)
+df$has_mobile <- as.logical(df$has_mobile)
+df$level_achieved <- as.numeric(df$level_achieved)
+df
+
+#la <- df[which(!is.na(df$level_achieved)),]
+#la
+#cor(la$is_activated, la$level_achieved)
+
+
+
+
+```
+
+Lets focus on those who are paying or not and try to find some features of them.
+```{r}
+#paying <- df[which(!is.na(df$became_paying)),]
+#paying
+#change data at became_paying, became_pql, canceled, trial_feature(change to number)
+
+paying <- df
+paying
+time_series <- paying
+paying$became_paying[!is.na(paying$became_paying)] <- 1
+paying$became_pql[!is.na(paying$became_pql)] <- 1
+paying$cancelled[!is.na(paying$cancelled)] <- 1
+paying
+paying$became_paying[is.na(paying$became_paying)] <- 0
+paying$became_pql[is.na(paying$became_pql)] <- 0
+paying$cancelled[is.na(paying$cancelled)] <- 0
+
+paying$trial_features <- str_count(paying$trial_features,coll(";")) + 1
+paying$trial_features[is.na(paying$trial_features)] <- 0
+
+paying$became_paying <- as.numeric(paying$became_paying)
+paying$became_pql <- as.numeric(paying$became_pql)
+paying$cancelled <- as.numeric(paying$cancelled)
+
+names = c("is_agency", "became_paying", "became_pql", "cancelled", "had_trial", "trial_features", "is_activated")
+
+corr <- cor(paying[names])
+ggcorrplot(corr, hc.order = TRUE, type = "lower",
+   lab = TRUE)
+
+ggsave(
+  "corr.png",
+  plot = last_plot(),
+  device = NULL,
+  path = NULL,
+  scale = 2,
+  width = NA,
+  height = NA,
+  units = c("in", "cm", "mm", "px"),
+  dpi = 300,
+  limitsize = TRUE,
+  bg = NULL
+)
+
+df
+  
+
+```
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+```{r} 
+#part of paying and pql by country
+
+paying_mean <- paying[c("country", "became_paying", "became_pql")]
+ 
+paying_mean %>%
+	group_by(country) %>%
+	summarise(became_paying = n()) -> P
+
+
+paying_mean <- aggregate(paying_mean[, 2:3], list(paying_mean$country), mean)
+colnames(P) <- c("C", "sum")
+paying_mean$sum <- P$sum
+# Everything on the same plot by country
+ggplot(paying_mean, aes(x = became_paying, y=became_pql, color= sum)) + 
+  geom_point() + scale_color_gradientn(colors = rainbow(5))+
+  theme_bw() +
+  geom_smooth(method = "loess", SE=TRUE) + 
+  ggtitle("Ratio of companies by country and amount ") 
+
+ggsave(
+  "ratio_paye_pql_county.png",
+  plot = last_plot(),
+  device = NULL,
+  path = NULL,
+  scale = 2,
+  width = NA,
+  height = NA,
+  units = c("in", "cm", "mm", "px"),
+  dpi = 300,
+  limitsize = TRUE,
+  bg = NULL
+)
+
+```
+```{r}
+#lets look more close trials in those who became baying, will work more on it in python
+t_s <- time_series[which(!is.na(time_series$became_paying)),]
+t_s <- t_s[which(!is.na(t_s$trial_features)),]
+t_s <- t_s[which(t_s$trial_features != ""),]
+
+
+write.csv(t_s$trial_features, "trial_features.csv")
+### GO TO JUPYTER NOTEBOOK VISUALIZATION 2!
+
+### BACK FROM JUPYTER NOTEBOOK
+
+t_s_2 <- read.csv("trial_features_2.csv")
+t_s_2 <- t_s_2$X0
+table(t_s_2)
+
+p2 <- as.data.frame(table(t_s_2))
+
+
+df[which(is.na(df$became_paying)),]
+n_t_s <- df[which(is.na(df$became_paying)),]
+n_t_s <- n_t_s[which(n_t_s$trial_features != ""),]
+write.csv(n_t_s$trial_features, "n_t_s.csv")
+
+d <- read.csv("n_trial_features_2.csv")
+d <- d$X0
+d <- as.data.frame(table(d))
+d$Freq <- d$Freq / sum(d$Freq)
+p2$Freq <- p2$Freq / sum(p2$Freq)
+p2$not_payed <- d$Freq
+
+p2 %>% arrange(desc(Freq)) -> p2
+colnames(p2) <- c("t_s_2", "become_payed", "not_become_payed")
+
+p2 <- melt(p2, id.vars='t_s_2')
+
+ggplot(p2, aes(x= t_s_2, y=value, fill=variable)) +
+    geom_bar(stat='identity', position='dodge') +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  xlab("Feature name") + ylab("Ratio") +
+   ggtitle("Probability density of features used by payed status") 
+
+ggsave(
+  "density_deatures.png",
+  plot = last_plot(),
+  device = NULL,
+  path = NULL,
+  scale = 2,
+  width = NA,
+  height = NA,
+  units = c("in", "cm", "mm", "px"),
+  dpi = 300,
+  limitsize = TRUE,
+  bg = NULL
+)
+
+
+
+
+
+```
+```{r}
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
