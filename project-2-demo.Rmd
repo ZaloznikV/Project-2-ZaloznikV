@@ -6,7 +6,7 @@ output: pdf_document
 ---
 
 ## Setup
-In this block are needed libraries for work. Workdir is set to my folder on my computer. For running this notebook I used  R version 4.1.2. All work is done here, except figure 1 was done in seperate script called Plot1.R. First data preprocesing (editing some .csv lines that pandas and R could not load) is in added jupyter notebook.
+In this block are needed libraries for work. Workdir is set to my folder on my computer. For running this notebook I used  R version 4.1.2. All work is done here, except figure 1 was done in seperate script called Plot1.R. First data preprocesing (editing some .csv lines that pandas and R could not load) is in added jupyter notebook. Also some more data preprocesing was done in jupyter notebook due to lack of tehnical cnowladge of R. In parts when I switched to jupyter notebook there is written sign to go to jupyter notebook do work there and then go back here.
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -29,7 +29,7 @@ library(ggcorrplot);
 Firts lets look at data and remove some column names patterns that are anoying to write.
 ```{r}
 df <- read.csv("signups/SignupsAttributes.csv")
-#summary(df)
+summary(df) #fast lookup
 
 df
 
@@ -49,6 +49,7 @@ count(agency, is_agency) %>%
 We can see, that most of users are not agencies.
 
 ```{r}
+#lets see if there is any interesting pattern in distribution by country
 
 
 df %>%
@@ -119,7 +120,7 @@ df
 
 ```
 
-Lets focus on those who are paying or not and try to find some features of them.
+Lets focus on those who are paying or not, and try to find some features of them.
 ```{r}
 #paying <- df[which(!is.na(df$became_paying)),]
 #paying
@@ -127,7 +128,7 @@ Lets focus on those who are paying or not and try to find some features of them.
 
 paying <- df
 paying
-time_series <- paying
+time_series <- df
 paying$became_paying[!is.na(paying$became_paying)] <- 1
 paying$became_pql[!is.na(paying$became_pql)] <- 1
 paying$cancelled[!is.na(paying$cancelled)] <- 1
@@ -168,9 +169,8 @@ df
 
 ```
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
+
+
 ```{r} 
 #part of paying and pql by country
 
@@ -208,6 +208,7 @@ ggsave(
 ```
 ```{r}
 #lets look more close trials in those who became baying, will work more on it in python
+#unfurtunatly used here to many dummy variables
 t_s <- time_series[which(!is.na(time_series$became_paying)),]
 t_s <- t_s[which(!is.na(t_s$trial_features)),]
 t_s <- t_s[which(t_s$trial_features != ""),]
@@ -218,7 +219,7 @@ write.csv(t_s$trial_features, "trial_features.csv")
 
 ### BACK FROM JUPYTER NOTEBOOK
 
-t_s_2 <- read.csv("trial_features_2.csv")
+t_s_2 <- read.csv("trial_features_2.csv") 
 t_s_2 <- t_s_2$X0
 table(t_s_2)
 
@@ -267,8 +268,42 @@ ggsave(
 
 
 ```
+Next i'll try to see if there is some pattern in time to go from registrating to becacma_payed and (if) than to cancell. 
 ```{r}
+time_series <- time_series[, c("company_created", "became_paying", "became_pql", "cancelled")]
+time_series <- time_series[which(!is.na(time_series$became_paying)),]
+
+write.csv(time_series, "time_series.csv")
+
+#GO TO JUPYTER NOTEBOOK VISUALIZATION 3
+
+#BACK FROM JUPYTER NOTEBOOK
+
+time_series_1 = read.csv("time_series_1.csv")
+
+time_series_1$Date <- as.Date(time_series_1$Date) 
+time_series_1 <- time_series_1[, c("Date", "Version", "Days_since")]
+
+ggplot(time_series_1, aes(x=Date, y=Days_since, colour=Version)) +
+   geom_point() + geom_smooth(method = "loess")+ 
+  scale_x_date(date_labels="%b %y",date_breaks  ="1 month") + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+
+ggsave(
+  "activity_after_days.png",
+  plot = last_plot(),
+  device = NULL,
+  path = NULL,
+  scale = 2,
+  width = NA,
+  height = NA,
+  units = c("in", "cm", "mm", "px"),
+  dpi = 300,
+  limitsize = TRUE,
+  bg = NULL
+)
+
 
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+Look at custom queries and relation to become_payed 
