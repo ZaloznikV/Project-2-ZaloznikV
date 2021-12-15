@@ -49,7 +49,8 @@ library(ggplot2)
 #g1 <- ggplot(p1, aes(x=Date, y=Event_count)) + geom_point() +  geom_smooth(method="lm")
 #plot(g1)
 
-g <- ggplot(p, aes(x=Date, y=value, fill=variable)) + 
+g <- ggplot(p, aes(x=Date, y=value, fill=variable, colour=variable)) + 
+   geom_point() + 
    geom_smooth(method="loess",se=TRUE)  +
   labs(title="Change of events over time", y="Event count", x="Date")
 dev.off()
