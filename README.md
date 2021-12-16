@@ -15,7 +15,7 @@ Visualizations that were not used in report were deleted or commented.
 
 
 
-##Environment setup
+## Environment setup
 
 - conda create --name project_2
 - conda activate project_2
