@@ -12,6 +12,8 @@ is done in first part of jupyter notebook. After that is time to run seperate R 
 Then it's time to run "project-2.rmd" R markdown. Twice in between you must go back to jupyter notebook to run some aditional preprocessing. This is in line 225 and 285 of R markdown file.
 Visualizations that were not used in report were deleted or commented.
 
+Used data is available here: https://drive.google.com/file/d/1xlBq18Ljh9fZ_o_KXaFuMe4fId9waS3G/view and must be extracted into folder. 
+
 
 
 
