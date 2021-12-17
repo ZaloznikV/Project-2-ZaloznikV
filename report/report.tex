@@ -20,7 +20,8 @@
 %----------------------------------------------------------------------------------------
 \documentclass[fleqn,moreauthors,10pt]{ds_report}
 \usepackage[english]{babel}
-
+\usepackage{float} 
+\usepackage[section]{placeins}
 \graphicspath{{fig/}}
 
 
@@ -35,14 +36,14 @@
 
 % Interim or final report
 %\Archive{Interim report}
-\Archive{Project X Report}
+\Archive{Project 2 Report}
 
 % Article title
-\PaperTitle{Data Science Latex Template}
+\PaperTitle{When companies pay and when cancel?}
 
 % Authors and their info
-\Authors{John Doe\textsuperscript{1}}
-\affiliation{\textsuperscript{1}\textit{john.doe@fri.uni-lj.si, 63181234}}
+\Authors{Vito Založnik\textsuperscript{1}}
+\affiliation{\textsuperscript{1}\textit{vz9592@student.uni-lj.si, 63210496}}
 
 % Multiple authors
 %\Authors{John Doe\textsuperscript{1}, Jane Doe\textsuperscript{2}, and Mike Smith\textsuperscript{3}}
@@ -51,7 +52,7 @@
 %\affiliation{\textsuperscript{1}\textit{mike.smith@fri.uni-lj.si, 63171234}}
 
 % Keywords
-\Keywords{Keyword1, Keyword2, Keyword3 ...}
+\Keywords{Paying, Pql, Filter features}
 \newcommand{\keywordname}{Keywords}
 
 
@@ -60,7 +61,7 @@
 %----------------------------------------------------------------------------------------
 
 \Abstract{
-The abstract goes here. The abstract goes here. The abstract goes here. The abstract goes here. The abstract goes here. The abstract goes here. The abstract goes here. The abstract goes here. The abstract goes here. The abstract goes here. The abstract goes here. The abstract goes here. The abstract goes here. The abstract goes here. The abstract goes here. The abstract goes here. The abstract goes here. The abstract goes here. The abstract goes here. The abstract goes here. The abstract goes here. The abstract goes here. The abstract goes here. The abstract goes here. The abstract goes here. The abstract goes here.
+In this project report I wanted to get and represent an overview of data and find connection between parameters that could be used in future modeling. Underlying theme of the report is to find if there are any differences between companies that are paying for Databox's services and those who don't. Observations that I have found to be the most interesting are also visualized.
 }
 
 %----------------------------------------------------------------------------------------
@@ -81,164 +82,126 @@ The abstract goes here. The abstract goes here. The abstract goes here. The abst
 %----------------------------------------------------------------------------------------
 
 \section*{Introduction}
-	These latex files are intended to serve as a the template for the FRI Data Science Project Competition. If you find mistakes in the template or have problems using it, please consult Jure Demšar (\href{mailto:jure.demsar@fri.uni-lj.si}{jure.demsar@fri.uni-lj.si}).
 
-	In the Introduction section you should write about the relevance of your work (what is the purpose of the project, what will we solve) and about related work (what solutions for the problem already exist). Where appropriate, reference scientific work conducted by other researchers. For example, the work done by Demšar et al. \cite{Demsar2016BalancedMixture} is very important for our project. The abbreviation et al. is for et alia, which in latin means and others, we use this abbreviation when there are more than two authors of the work we are citing. If there are two authors (or if there is a single author) we just write down their surnames. For example, the work done by Demšar and Lebar Bajec \cite{Demsar2017LinguisticEvolution} is also important for successful completion of our project.
+    Data exploration is an approach to understand what is in a dataset and the characteristics of the data. These characteristics can include size, completeness of the data, correctness of the data, possible relationships amongst data elements or files/tables in the data. Data exploration is typically conducted using a combination of automated and manual activities.
+
+	Databox company provided us an anonymized and sampled dataset on their platform usage data from last 2 years. Our task was to get brief overview of the data, explore it and visualize some interesting observations. Data was combined from file with signups attributes and files with events. In event files there were quite a lot of data parameters, so it was hard to explore them all.  I decided to focus on exploring if there are some differences between companies that decided to became payable, became pql and those who did not and those who later cancelled subscription. In this report I included only the most interesting observations. Motivation for project was to help company Databox to improve their platform.
+	
+	
 
 
 %------------------------------------------------
 
-\section*{Methods}
+\section*{Data exploration}
+\subsection{Methods}
+First I had to do some data preprocessing. I removed some broken rows, added headers to event files and had to change some column types. I also had to divide some parameters from seingle string into list.
 
-Use the Methods section to describe what you did an how you did it -- in what way did you prepare the data, what algorithms did you use, how did you test various solutions ... Provide all the required details for a reproduction of your work.
+From mathematical point of view, the methods that were most used are calculating mean and variance. I also normed some data and calculated a lot of correlations to see possible connections between parameters. For estimating values between discrete data I used polynomial regression as it is unbiased estimator with lowest variance. In last figure I normalized data in respect to relative existing time of each user. This gave better results but the most recent dates seems to be still to sensitive and should be dropped. 
+\subsection{Analysis}
+First I wanted to get brief overview of how events happened trought time. 
 
-Below are \LaTeX examples of some common elements that you will probably need when writing your report (e.g. figures, equations, lists, code examples ...).
+\begin{figure}[H]\centering
+	\includegraphics[width=\linewidth]{events_over_time.png}
+	\caption{\textbf{Change of events at Databox over time.}  }
+	\label{fig:events}
+\end{figure}
+%Then I calcullated some correlations between signup attributes and compared some groups to each other in hope to find some interesting patterns. 
 
+In Figure 1 we can see how many of each events happened in a single week in the last 2 years and line that is best fit to each event. Number of new added users is the most consistent, as is almost identical at around 300 per week trough all observed period and with least variance. All the other events were in growth but there are some clear drops at certain dates. Biggest drops are at around each New year, when all activities drops significantly. We can also see interesting drop of $metrics\_added$ in the middle of June 2020, which lasted almost a month.
 
-\subsection*{Equations}
-
-You can write equations inline, e.g. $\cos\pi=-1$, $E = m \cdot c^2$ and $\alpha$, or you can include them as separate objects. The Bayes’s rule is stated mathematically as:
-
-\begin{equation}
-	P(A|B) = \frac{P(B|A)P(A)}{P(B)},
-	\label{eq:bayes}
-\end{equation}
-
-where $A$ and $B$ are some events. You can also reference it -- the equation \ref{eq:bayes} describes the Bayes's rule.
-
-\subsection*{Lists}
-
-We can insert numbered and bullet lists:
-
-% the [noitemsep] option makes the list more compact
-\begin{enumerate}[noitemsep]
-	\item First item in the list.
-	\item Second item in the list.
-	\item Third item in the list.
-\end{enumerate}
-
-\begin{itemize}[noitemsep]
-	\item First item in the list.
-	\item Second item in the list.
-	\item Third item in the list.
-\end{itemize}
-
-We can use the description environment to define or describe key terms and phrases.
-
-\begin{description}
-	\item[Word] What is a word?.
-	\item[Concept] What is a concept?
-	\item[Idea] What is an idea?
-\end{description}
-
-
-\subsection*{Random text}
-
-This text is inserted only to make this template look more like a proper report. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam blandit dictum facilisis. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Interdum et malesuada fames ac ante ipsum primis in faucibus. Etiam convallis tellus velit, quis ornare ipsum aliquam id. Maecenas tempus mauris sit amet libero elementum eleifend. Nulla nunc orci, consectetur non consequat ac, consequat non nisl. Aenean vitae dui nec ex fringilla malesuada. Proin elit libero, faucibus eget neque quis, condimentum laoreet urna. Etiam at nunc quis felis pulvinar dignissim. Phasellus turpis turpis, vestibulum eget imperdiet in, molestie eget neque. Curabitur quis ante sed nunc varius dictum non quis nisl. Donec nec lobortis velit. Ut cursus, libero efficitur dictum imperdiet, odio mi fermentum dui, id vulputate metus velit sit amet risus. Nulla vel volutpat elit. Mauris ex erat, pulvinar ac accumsan sit amet, ultrices sit amet turpis.
-
-Phasellus in ligula nunc. Vivamus sem lorem, malesuada sed pretium quis, varius convallis lectus. Quisque in risus nec lectus lobortis gravida non a sem. Quisque et vestibulum sem, vel mollis dolor. Nullam ante ex, scelerisque ac efficitur vel, rhoncus quis lectus. Pellentesque scelerisque efficitur purus in faucibus. Maecenas vestibulum vulputate nisl sed vestibulum. Nullam varius turpis in hendrerit posuere.
-
-
-\subsection*{Figures}
-
-You can insert figures that span over the whole page, or over just a single column. The first one, \figurename~\ref{fig:column}, is an example of a figure that spans only across one of the two columns in the report.
-
-\begin{figure}[ht]\centering
-	\includegraphics[width=\linewidth]{single_column.pdf}
-	\caption{\textbf{A random visualization.} This is an example of a figure that spans only across one of the two columns.}
-	\label{fig:column}
+\begin{figure}[H]\centering
+	\includegraphics[width=\linewidth]{ratio_paye_pql_county.png}
+	\caption{\textbf{Ratio of pql and paying companies in every country}  }
+	\label{fig:ratio_pql_paying}
 \end{figure}
 
-On the other hand, \figurename~\ref{fig:whole} is an example of a figure that spans across the whole page (across both columns) of the report.
+I was wondering if there are any legal, or other country specific, reasons for companies to start paying or became pql. Colour of every dot represents number of users in every country.  On $y$ axis is ratio of how much of them baceme pql and on $x$ axis is ratio of how much of them became paying. Colour represents the number of users in each country. If an individual country has very small number of users, then ratio is a very unstable indicator. But we can still see a lot of correlation between pql and paying status. We can see some yellow and orange dots not so close to 0, which could be countries with better properties for Databox.
+%\subsection*{Tables}
 
-% \begin{figure*} makes the figure take up the entire width of the page
-\begin{figure*}[ht]\centering
-	\includegraphics[width=\linewidth]{whole_page.pdf}
-	\caption{\textbf{Visualization of a Bayesian hierarchical model.} This is an example of a figure that spans the whole width of the report.}
-	\label{fig:whole}
-\end{figure*}
+%Use the table environment to insert tables.
 
+%begin{table}[hbt]
+%	\caption{Table of grades.}
+%	\centering
+%	\begin{tabular}{l l | r}
+%		\toprule
+%		\multicolumn{2}{c}{Name} \\
+%		First name & Last Name & Grade \\
+%		\midrule
+%		John & Doe & $7.5$ \\
+%		Jane & Doe & $10$ \\
+%		Mike & Smith & $8$ \\
+%		\bottomrule
+%	\end{tabular}
+%	\label{tab:label}
+%\end{table}
 
-\subsection*{Tables}
+\begin{figure}\centering
+	\includegraphics[width=\linewidth]{density_features.png}
+	\caption{\textbf{Number of features used in relation to paying status}   }
+	\label{fig:trial_features}
+\end{figure}
+Among those that used trial features we can see there are big differences in usage of each filter in relation to paying status. In group that is not paying there are a lot more users using Query Builder and less other features. In paying group there is a more use of More Data Sources than in non paying.
 
-Use the table environment to insert tables.
+\begin{figure}\centering
+	\includegraphics[width=\linewidth]{activity_after_days.png}
+	\caption{\textbf{Part of existing time until paying, pql and cancelled among those who started paying} }
+	\label{fig:main}
+\end{figure}
+The main goal of analysis was to find some connection between paying, pql and cancelled status. In figure 4 we can see after what part of existing time each costumer changed his status. On x axis is system creation time of each company that started to pay and on y axis is part of existence until the change of status. Norming of dates was done using formula $\frac{days\_since\_event}{total\_existing\_days}$. Color is specified by version of status change. In the end of time series, data became more and more sensible, so we can see upshift in aproximation curves. But at beginning, especially paying and pql aproximations are quite linear and evenly with constant proportion to each other. This might be used to predict when will company start paying if we know its pql status and when was achieved. 
+\begin{center}
 
-\begin{table}[hbt]
-	\caption{Table of grades.}
-	\centering
-	\begin{tabular}{l l | r}
-		\toprule
-		\multicolumn{2}{c}{Name} \\
-		\cmidrule(r){1-2}
-		First name & Last Name & Grade \\
-		\midrule
-		John & Doe & $7.5$ \\
-		Jane & Doe & $10$ \\
-		Mike & Smith & $8$ \\
-		\bottomrule
-	\end{tabular}
-	\label{tab:label}
+\begin{table}
+\caption{Figure 4 statistical informations}
+
+\begin{tabular}{|c |c c c||} 
+ \hline
+  & mean & median & standard deviation \\ [0.5ex] 
+ \hline\hline
+ pql & 6 & 87837 & 787 \\ 
+ \hline
+ paying & 7 & 78 & 5415 \\
+ \hline
+ canceled & 545 & 778 & 7507 \\
+ \hline
+ 
+\end{tabular}
+
+%\caption*{The caption without a number}
 \end{table}
 
+\end{center}
 
-\subsection*{Code examples}
 
-You can also insert short code examples. You can specify them manually, or insert a whole file with code. Please avoid inserting long code snippets, advisors will have access to your repositories and can take a look at your code there. If necessary, you can use this technique to insert code (or pseudo code) of short algorithms that are crucial for the understanding of the manuscript.
 
-\lstset{language=Python}
-\lstset{caption={Insert code directly from a file.}}
-\lstset{label={lst:code_file}}
-\lstinputlisting[language=Python]{code/example.py}
 
-\lstset{language=R}
-\lstset{caption={Write the code you want to insert.}}
-\lstset{label={lst:code_direct}}
-\begin{lstlisting}
-import(dplyr)
-import(ggplot)
 
-ggplot(diamonds,
-	   aes(x=carat, y=price, color=cut)) +
-  geom_point() +
-  geom_smooth()
-\end{lstlisting}
 
-%------------------------------------------------
 
-\section*{Results}
 
-Use the results section to present the final results of your work. Present the results in a objective and scientific fashion. Use visualisations to convey your results in a clear and efficient manner. When comparing results between various techniques use appropriate statistical methodology.
 
-\subsection*{More random text}
 
-This text is inserted only to make this template look more like a proper report. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam blandit dictum facilisis. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Interdum et malesuada fames ac ante ipsum primis in faucibus. Etiam convallis tellus velit, quis ornare ipsum aliquam id. Maecenas tempus mauris sit amet libero elementum eleifend. Nulla nunc orci, consectetur non consequat ac, consequat non nisl. Aenean vitae dui nec ex fringilla malesuada. Proin elit libero, faucibus eget neque quis, condimentum laoreet urna. Etiam at nunc quis felis pulvinar dignissim. Phasellus turpis turpis, vestibulum eget imperdiet in, molestie eget neque. Curabitur quis ante sed nunc varius dictum non quis nisl. Donec nec lobortis velit. Ut cursus, libero efficitur dictum imperdiet, odio mi fermentum dui, id vulputate metus velit sit amet risus. Nulla vel volutpat elit. Mauris ex erat, pulvinar ac accumsan sit amet, ultrices sit amet turpis.
-
-Phasellus in ligula nunc. Vivamus sem lorem, malesuada sed pretium quis, varius convallis lectus. Quisque in risus nec lectus lobortis gravida non a sem. Quisque et vestibulum sem, vel mollis dolor. Nullam ante ex, scelerisque ac efficitur vel, rhoncus quis lectus. Pellentesque scelerisque efficitur purus in faucibus. Maecenas vestibulum vulputate nisl sed vestibulum. Nullam varius turpis in hendrerit posuere.
-
-Nulla rhoncus tortor eget ipsum commodo lacinia sit amet eu urna. Cras maximus leo mauris, ac congue eros sollicitudin ac. Integer vel erat varius, scelerisque orci eu, tristique purus. Proin id leo quis ante pharetra suscipit et non magna. Morbi in volutpat erat. Vivamus sit amet libero eu lacus pulvinar pharetra sed at felis. Vivamus non nibh a orci viverra rhoncus sit amet ullamcorper sem. Ut nec tempor dui. Aliquam convallis vitae nisi ac volutpat. Nam accumsan, erat eget faucibus commodo, ligula dui cursus nisi, at laoreet odio augue id eros. Curabitur quis tellus eget nunc ornare auctor.
-
-Phasellus in ligula nunc. Vivamus sem lorem, malesuada sed pretium quis, varius convallis lectus. Quisque in risus nec lectus lobortis gravida non a sem. Quisque et vestibulum sem, vel mollis dolor. Nullam ante ex, scelerisque ac efficitur vel, rhoncus quis lectus. Pellentesque scelerisque efficitur purus in faucibus. Maecenas vestibulum vulputate nisl sed vestibulum.
 
 
 %------------------------------------------------
 
 \section*{Discussion}
 
-Use the Discussion section to objectively evaluate your work, do not just put praise on everything you did, be critical and exposes flaws and weaknesses of your solution. You can also explain what you would do differently if you would be able to start again and what upgrades could be done on the project in the future.
+We saw how events changed through time and that there are quite few of drops in all event counts around New year and also some additional drops in just single events. We figured out that pql and paying are very correlated parameters and that there are some differences in trial features used among those who later started paying and those who don't. Interestingly there are also few dompanies that are paying but did not activate subscription. Main observation is, that there is a pattern in elapsed time between change in status from pql to paying. If I would start over again, I would do some grouping by continent rather than only by countries.  I would also try to do some principal component analysis. When norming data for Figure \ref{fig:main} I would rather use only first half of time stamp for reference. But this ideas came too late. This could also be done before project 3 modeling. 
+
+
+
 
 
 %------------------------------------------------
 
-\section*{Acknowledgments}
-
-Here you can thank other persons (non-authors) that contributed to the successful completion of your project.
 
 
 %----------------------------------------------------------------------------------------
 %	REFERENCE LIST
 %----------------------------------------------------------------------------------------
-\bibliographystyle{unsrt}
-\bibliography{report}
+%\bibliographystyle{unsrt}
+%\bibliography{report}
 
 
 \end{document}
