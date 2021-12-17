@@ -1,12 +1,12 @@
 ---
 title: "Project-2"
 author: "Vito Založnik"
-date: "13 12 2021"
+date: "11 12 2021"
 output: pdf_document
 ---
 
 ## Setup
-In this block are needed libraries for work. Workdir is set to my folder on my computer. For running this notebook I used  R version 4.1.2. All work is done here, except figure 1 was done in seperate script called Plot1.R. First data preprocesing (editing some .csv lines that pandas and R could not load) is in added jupyter notebook. Also some more data preprocesing was done in jupyter notebook due to lack of tehnical cnowladge of R. In parts when I switched to jupyter notebook there is written sign to go to jupyter notebook do work there and then go back here.
+In this block are needed libraries for work. Workdir is set to my folder on my computer. For running this notebook I used  R version 4.1.2. All R work was done here, except figure 1 was done in seperate script called Plot1.R. First data preprocesing (editing some .csv lines that pandas and R could not load) is in added jupyter notebook. Also some more data preprocesing was done in jupyter notebook due to lack of tehnical knowladge of R. In parts when I switched to jupyter notebook there is written sign to go to jupyter notebook, do work there and then come back here.
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -17,8 +17,10 @@ setwd("C:/Users/zaloz/Desktop/exFMF/upd/project-2-databox-ZaloznikV")
 if (!require("ggplot2")) install.packages("ggplot2");
 if (!require("tidyverse")) install.packages("tidyverse");
 if (!require("ggcorrplot")) install.packages("ggcorrplot");
+if (!require("reshape"))install.packages("reshape");
 
 # Load required libraries.
+library(reshape)
 library(ggplot2);
 library(tidyverse);
 library(ggcorrplot);
@@ -76,25 +78,27 @@ plt2 %>%
   group_by(country, is_agency ) %>%
   count -> plt2
 
-ggplot(plt2, aes(x=reorder(country, -n), y=n, colour = is_agency)) +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-  geom_bar(stat="identity")  + 
-  xlab("Country name") + ylab("Number of companies")  +
-  ggtitle("Number of distinque customers by country and status") 
+#visualization that was not used later
 
-ggsave(
-  "nbr_companies_country.png",
-  plot = last_plot(),
-  device = NULL,
-  path = NULL,
-  scale = 2,
-  width = NA,
-  height = NA,
-  units = c("in", "cm", "mm", "px"),
-  dpi = 300,
-  limitsize = TRUE,
-  bg = NULL
-)
+#ggplot(plt2, aes(x=reorder(country, -n), y=n, colour = is_agency)) +
+#  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+#  geom_bar(stat="identity")  + 
+#  xlab("Country name") + ylab("Number of companies")  +
+#  ggtitle("Number of distinque customers by country and status") 
+
+#ggsave(
+#  "nbr_companies_country.png",
+#  plot = last_plot(),
+#  device = NULL,
+#  path = NULL,
+#  scale = 2,
+#  width = NA,
+#  height = NA,
+#  units = c("in", "cm", "mm", "px"),
+#  dpi = 300,
+#  limitsize = TRUE,
+#  bg = NULL
+#)
 
 ```
 It is interesting, there is just few countries who has majority of customers. Median is 18 customers per country but mean is 331. This mean there is a lot of outliers. 
@@ -215,6 +219,9 @@ t_s <- t_s[which(t_s$trial_features != ""),]
 
 
 write.csv(t_s$trial_features, "trial_features.csv")
+
+
+
 ### GO TO JUPYTER NOTEBOOK VISUALIZATION 2!
 
 ### BACK FROM JUPYTER NOTEBOOK
@@ -285,12 +292,19 @@ time_series_1$Date <- as.Date(time_series_1$Date)
 time_series_1 <- time_series_1[, c("Date", "Version", "Days_since")]
 
 ggplot(time_series_1, aes(x=Date, y=Days_since, colour=Version)) +
+  scale_x_date(date_labels="%b %y",date_breaks  ="1 month" ) +
    geom_point() + geom_smooth(method = "loess")+ 
-  scale_x_date(date_labels="%b %y",date_breaks  ="1 month") + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
   xlab("Starting date") + 
-  ylab("Days until event") + 
-  scale_color_manual(labels = c("Cancelled", "Paying", "Pql"), values = c("blue", "red", "yellow"))
+  scale_color_manual(labels = c("Cancelled", "Paying", "Pql"), values = c("blue", "red", "yellow")) + 
+  ylim(0, 1) +  
+  ylab("Part of total existing time") +
+  ggtitle("Part of time until version change") 
 
+
+#Mean  0.20439185894208542 0.10209127904044993 0.51085531336809
+#Median  0.10416524496898605 0.030303030303030304 0.48459143931545223
+#STD  0.24627887930102507 0.16996065370943825 0.29418243007253003
 
 
 ggsave(
@@ -308,6 +322,16 @@ ggsave(
 )
 
 
+
+
 ```
+
+```{r}
+boxplot
+library(ggplot2)
+ggplot(time_series_1) +
+      geom_boxplot(aes(x=Date, y=Days_since, color=Version))
+```
+
 
 Look at custom queries and relation to become_payed 
