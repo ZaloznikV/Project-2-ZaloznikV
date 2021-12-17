@@ -80,11 +80,11 @@ plt2 %>%
 
 #visualization that was not used later
 
-#ggplot(plt2, aes(x=reorder(country, -n), y=n, colour = is_agency)) +
-#  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-#  geom_bar(stat="identity")  + 
-#  xlab("Country name") + ylab("Number of companies")  +
-#  ggtitle("Number of distinque customers by country and status") 
+ggplot(plt2, aes(x=reorder(country, -n), y=n, colour = is_agency)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  geom_bar(stat="identity")  + 
+  xlab("Country name") + ylab("Number of companies")  +
+  ggtitle("Number of distinque customers by country and status") 
 
 #ggsave(
 #  "nbr_companies_country.png",

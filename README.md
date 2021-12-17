@@ -6,21 +6,18 @@ Databox company provided an anonymized and sampled dataset on their platform usa
 
 ## Instructions
 
-I used both Python and R for work. At first I wanted to do first data reprocessing in Python and then continuing in R but due to loack of tehnicall ability in R  in between I 
-went back to python for preprocessing and to R only for visualizations. All aditional instructions are in notebooks. 
 
-First preproccesing (adding headers to some csv files) is done in first part of jupyter notebook. 
+I used both Python and R for work. At first I wanted to do data reprocessing in Python and then continue in R. Due to lack of tehnical ability in R, I went back to python in the meantime to preprocess and to R for visualizations. All aditional instructions are in notebooks. 
 
-After that is time to run seperate R script "plot1.R" to create first visualization "events_over_time.png". 
-
-Then it's time to run "project-2.rmd" R markdown. Twice in between you must go back to jupyter notebook to run some aditional preprocessing. This is in line 225 and 285 of R markdown file.
+- First preproccesing (adding headers to some .csv files) was done in the first part of jupyter notebook. 
+- After that, it's time to run seperate R script "plot1.R", to create the first visualization "events_over_time.png". 
+- Afterwards it's time to run "project-2.rmd" R markdown. Twice in between you must go back to jupyter notebook to run some additional preprocessing. This is in line 225 and 285 of R markdown file.
 
 Visualizations that were not used in report were deleted or commented.
 
 Used data is available here: https://drive.google.com/file/d/1xlBq18Ljh9fZ_o_KXaFuMe4fId9waS3G/view and must be extracted into folder. 
 
-
-
+Edited data (added headers,...) is in events_signups.rar
 
 ## Environment setup
 
